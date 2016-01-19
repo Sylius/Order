@@ -26,15 +26,8 @@ interface OrderItemUnitInterface extends AdjustableInterface
      */
     public function getTotal();
 
-    public function calculateTotal();
-
     /**
      * @return OrderItemInterface
      */
     public function getOrderItem();
-
-    /**
-     * @param null|OrderItemInterface $orderItem
-     */
-    public function setOrderItem(OrderItemInterface $orderItem = null);
 }
