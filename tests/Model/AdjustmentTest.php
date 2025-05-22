@@ -136,11 +136,6 @@ final class AdjustmentTest extends TestCase
         $this->adjustment->lock();
 
         $this->expectException(\LogicException::class);
-        $this->expectException(\LogicException::class);
-
-        $this->adjustment->setAdjustable($otherOrderItemMock);
-
-        $this->expectException(\LogicException::class);
 
         $this->adjustment->setAdjustable($otherOrderItemMock);
     }
