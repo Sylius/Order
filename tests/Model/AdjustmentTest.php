@@ -129,7 +129,7 @@ final class AdjustmentTest extends TestCase
 
     public function testThrowsAnExceptionDuringAdjustableChangeOnLockedAdjustment(): void
     {
-        /** @var OrderItemInterface|MockObject $otherOrderItemMock */
+        /** @var OrderItemInterface&MockObject $otherOrderItemMock */
         $otherOrderItemMock = $this->createMock(OrderItemInterface::class);
 
         $this->adjustment->setAdjustable($this->orderItem);

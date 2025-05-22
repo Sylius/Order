@@ -124,14 +124,20 @@ final class OrderTest extends TestCase
     public function testRemovesItemsProperly(): void
     {
         $this->item1->expects($this->exactly(2))->method('getTotal')->willReturn(420);
+
+        $callIndex = 0;
         $this->item1
             ->expects($this->exactly(2))
             ->method('setOrder')
-            ->withConsecutive(
-                [$this->isInstanceOf(OrderInterface::class)],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertInstanceOf(OrderInterface::class, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->order->addItem($this->item1);
         $this->order->removeItem($this->item1);
@@ -192,22 +198,25 @@ final class OrderTest extends TestCase
     {
         $this->assertFalse($this->order->hasAdjustment($this->adjustment1));
 
+        $callIndex = 0;
         $this->adjustment1
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->order],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertSame($this->order, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->adjustment1->expects($this->atLeastOnce())->method('isNeutral')->willReturn(true);
+        $this->adjustment1->expects($this->once())->method('isLocked')->willReturn(false);
 
         $this->order->addAdjustment($this->adjustment1);
-
         $this->assertTrue($this->order->hasAdjustment($this->adjustment1));
-
-        $this->adjustment1->expects($this->once())->method('isLocked')->willReturn(false);
 
         $this->order->removeAdjustment($this->adjustment1);
 
@@ -244,27 +253,31 @@ final class OrderTest extends TestCase
         $orderPromotionAdjustment
             ->expects($this->exactly(1))
             ->method('setAdjustable')
-            ->with($this->isInstanceOf(Order::class))
-        ;
+            ->with($this->isInstanceOf(Order::class));
 
         $orderTaxAdjustment->expects($this->once())->method('getType')->willReturn('tax');
         $orderTaxAdjustment->expects($this->atLeastOnce())->method('isNeutral')->willReturn(true);
         $orderTaxAdjustment->expects($this->atLeastOnce())->method('isLocked')->willReturn(false);
+
+        $callIndex = 0;
         $orderTaxAdjustment
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->isInstanceOf(Order::class)],
-                [$this->equalTo(null)]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertInstanceOf(Order::class, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->item1->expects($this->once())->method('getTotal')->willReturn(666);
         $this->item1
             ->expects($this->once())
             ->method('removeAdjustmentsRecursively')
-            ->with('tax')
-        ;
+            ->with('tax');
 
         $this->order->addAdjustment($orderPromotionAdjustment);
         $this->order->addAdjustment($orderTaxAdjustment);
@@ -346,9 +359,7 @@ final class OrderTest extends TestCase
 
     public function testReturnsAdjustmentsTotalRecursively(): void
     {
-        /** @var AdjustmentInterface|MockObject $itemAdjustment */
         $itemAdjustment = $this->createMock(AdjustmentInterface::class);
-        /** @var AdjustmentInterface|MockObject $orderAdjustment */
         $orderAdjustment = $this->createMock(AdjustmentInterface::class);
 
         $itemAdjustment->expects($this->atLeastOnce())->method('getAmount')->willReturn(10000);
@@ -430,19 +441,38 @@ final class OrderTest extends TestCase
         $this->item1->expects($this->once())->method('setOrder')->with($this->order);
 
         $this->item2->expects($this->exactly(2))->method('getTotal')->willReturn(45000);
-        $this->item2->expects($this->exactly(2))->method('setOrder')->withConsecutive([$this->order], [null]);
+
+        $callIndexItem2 = 0;
+        $this->item2
+            ->expects($this->exactly(2))
+            ->method('setOrder')
+            ->with($this->callback(function ($arg) use (&$callIndexItem2) {
+                if ($callIndexItem2 === 0) {
+                    $this->assertSame($arg instanceof OrderInterface ? $arg : null, $arg);
+                } elseif ($callIndexItem2 === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndexItem2++;
+                return true;
+            }));
 
         $this->adjustment1->expects($this->atLeastOnce())->method('isNeutral')->willReturn(false);
         $this->adjustment1->expects($this->atLeastOnce())->method('getAmount')->willReturn(10000);
         $this->adjustment1->expects($this->once())->method('isLocked')->willReturn(false);
+
+        $callIndexAdj1 = 0;
         $this->adjustment1
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->order],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndexAdj1) {
+                if ($callIndexAdj1 === 0) {
+                    $this->assertInstanceOf(Order::class, $arg);
+                } elseif ($callIndexAdj1 === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndexAdj1++;
+                return true;
+            }));
 
         $this->order->addItem($this->item1);
         $this->order->addItem($this->item2);

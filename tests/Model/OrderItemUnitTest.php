@@ -89,14 +89,19 @@ final class OrderItemUnitTest extends TestCase
         $this->adjustment1->expects($this->atLeastOnce())->method('isNeutral')->willReturn(true);
         $this->adjustment1->expects($this->once())->method('isLocked')->willReturn(false);
 
+        $callIndex = 0;
         $this->adjustment1
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->orderItemUnit],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertSame($this->orderItemUnit, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->orderItemUnit->addAdjustment($this->adjustment1);
         $this->assertTrue($this->orderItemUnit->hasAdjustment($this->adjustment1));
@@ -129,14 +134,20 @@ final class OrderItemUnitTest extends TestCase
         $this->adjustment1->expects($this->atLeastOnce())->method('isNeutral')->willReturn(false);
         $this->adjustment1->expects($this->atLeastOnce())->method('isLocked')->willReturn(false);
         $this->adjustment1->expects($this->atLeastOnce())->method('getAmount')->willReturn(100);
+
+        $callIndex = 0;
         $this->adjustment1
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->orderItemUnit],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertSame($this->orderItemUnit, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->adjustment2->expects($this->atLeastOnce())->method('isNeutral')->willReturn(false);
         $this->adjustment2->expects($this->atLeastOnce())->method('getAmount')->willReturn(50);
@@ -165,14 +176,19 @@ final class OrderItemUnitTest extends TestCase
         $this->adjustment1->expects($this->atLeastOnce())->method('isNeutral')->willReturn(true);
         $this->adjustment1->expects($this->atLeastOnce())->method('isLocked')->willReturn(false);
 
+        $callIndex = 0;
         $this->adjustment1
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->orderItemUnit],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertSame($this->orderItemUnit, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->orderItemUnit->addAdjustment($this->adjustment1);
         $this->assertSame(1000, $this->orderItemUnit->getTotal());

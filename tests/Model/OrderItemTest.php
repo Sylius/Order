@@ -264,14 +264,19 @@ final class OrderItemTest extends TestCase
         $this->itemAdjustment->expects($this->atLeastOnce())->method('isNeutral')->willReturn(true);
         $this->itemAdjustment->expects($this->atLeastOnce())->method('isLocked')->willReturn(false);
 
+        $callIndex = 0;
         $this->itemAdjustment
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->orderItem],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertSame($this->orderItem, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->assertFalse($this->orderItem->hasAdjustment($this->itemAdjustment));
 
@@ -339,14 +344,19 @@ final class OrderItemTest extends TestCase
         $this->itemAdjustment->expects($this->atLeastOnce())->method('getAmount')->willReturn(200);
         $this->itemAdjustment->expects($this->atLeastOnce())->method('isLocked')->willReturn(false);
 
+        $callIndex = 0;
         $this->itemAdjustment
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->orderItem],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertSame($this->orderItem, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->orderItem->addAdjustment($this->itemAdjustment);
         $this->assertSame(200, $this->orderItem->getTotal());
@@ -360,14 +370,19 @@ final class OrderItemTest extends TestCase
         $this->itemAdjustment->expects($this->atLeastOnce())->method('isNeutral')->willReturn(true);
         $this->itemAdjustment->expects($this->atLeastOnce())->method('isLocked')->willReturn(false);
 
+        $callIndex = 0;
         $this->itemAdjustment
             ->expects($this->exactly(2))
             ->method('setAdjustable')
-            ->withConsecutive(
-                [$this->orderItem],
-                [null]
-            )
-        ;
+            ->with($this->callback(function ($arg) use (&$callIndex) {
+                if ($callIndex === 0) {
+                    $this->assertSame($this->orderItem, $arg);
+                } elseif ($callIndex === 1) {
+                    $this->assertNull($arg);
+                }
+                $callIndex++;
+                return true;
+            }));
 
         $this->orderItem->addAdjustment($this->itemAdjustment);
         $this->assertSame(0, $this->orderItem->getTotal());

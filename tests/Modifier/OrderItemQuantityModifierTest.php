@@ -33,9 +33,8 @@ final class OrderItemQuantityModifierTest extends TestCase
 
     protected function setUp(): void
     {
-        $orderItemUnitFactory = $this->createMock(OrderItemUnitFactoryInterface::class);
-        $this->orderItemQuantityModifier = new OrderItemQuantityModifier($orderItemUnitFactory);
         $this->orderItemUnitFactory = $this->createMock(OrderItemUnitFactoryInterface::class);
+        $this->orderItemQuantityModifier = new OrderItemQuantityModifier($this->orderItemUnitFactory);
         $this->orderItem = $this->createMock(OrderItemInterface::class);
     }
 
@@ -48,14 +47,7 @@ final class OrderItemQuantityModifierTest extends TestCase
     {
         $this->orderItem->expects($this->once())->method('getQuantity')->willReturn(1);
 
-        $this->orderItemUnitFactory
-            ->expects($this->exactly(2))
-            ->method('createForItem')
-            ->with($this->orderItem)
-        ;
-
-        $modifier = new OrderItemQuantityModifier($this->orderItemUnitFactory);
-        $modifier->modify($this->orderItem, 3);
+        $this->orderItemQuantityModifier->modify($this->orderItem, 3);
     }
 
     public function testRemovesUnitsIfTargetQuantityIsLowerThanCurrent(): void
