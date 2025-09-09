@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Order;
 
+/** @deprecated since Sylius 1.14 and will be removed in Sylius 2.0. */
 interface CartActions
 {
     public const ADD = 'add';
